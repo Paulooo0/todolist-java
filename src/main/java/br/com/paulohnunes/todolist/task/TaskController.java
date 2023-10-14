@@ -57,7 +57,13 @@ public class TaskController {
     public ResponseEntity update(@RequestBody TaskModel taskModel, HttpServletRequest request, @PathVariable UUID id) {
         var task = this.taskRepository.findById(id).orElse(null);
 
+        if (task == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body("Tarefa não encontrada");
+        }
+
         var userId = request.getAttribute("userId");
+
         if (!task.getUserId().equals(userId)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body("Usuario não autorizado");
@@ -66,7 +72,6 @@ public class TaskController {
         Utils.copyNonNullProperties(taskModel, task);
 
         var newTask = this.taskRepository.save(task);
-
-        return ResponseEntity.ok(this.taskRepository.save(newTask));
+        return ResponseEntity.ok().body(newTask);
     }
 }
